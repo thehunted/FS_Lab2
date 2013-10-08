@@ -1,4 +1,4 @@
-<project name="Lab 2" basedir="." default="buildall">
+<project name="Lab_2" basedir="." default="buildall">
 	<property name="src.dir" value="./src"/>
 	<property name="build.dir" value="./build"/>
 	<property name="classes.dir" value="${build.dir}/classes"/>
@@ -14,30 +14,9 @@
 		<delete dir="${build.dir}"/>
 	</target>
 	
-	<!-- <target name="unzip" depends="clean">
-		<unzip src="${resource.dir}/jxl.jar" dest="${classes.dir}"/>
-	</target>-->
-	
 	<target name="compile">
 		<mkdir dir="${classes.dir}"/>
-		<!-- <mkdir dir="${classes.dir}/resources"/>
-		<copy todir="${classes.dir}/resources">
-				<fileset dir="${resource.dir}">
-					<include name="**/*.txt"/>
-					<exclude name="**/*.jar"/>
-				</fileset>
-		</copy>
-		<tstamp>
-			<format property="build.date" pattern="yyyy.MM.dd"/>
-		</tstamp>
-		<echo file="gui/CopperfieldVersion.java">
-			package gui;
-			public class CopperfieldVersion {
-				public static final String BUILD_DATE = "${build.date}";
-				public static final String VERSION    = "${version}"; 
-			}
-		</echo>
-		-->
+
 		<javac includeantruntime="false" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
 	</target>
 
@@ -50,7 +29,7 @@
 		</jar>
 	</target>
 	
-	<target name="buildall" depends="jar">
+	<target name="buildall" depends="clean, jar">
 		<java jar="${jar.dir}/${ant.project.name}.jar" fork="true"/>
 	</target>
 	
