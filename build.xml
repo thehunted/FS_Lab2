@@ -1,9 +1,9 @@
-<project name="Lab_2" basedir="." default="buildall">
+<project name="Lab_2" basedir="." default="jar">
 	<property name="src.dir" value="./src"/>
 	<property name="build.dir" value="./build"/>
 	<property name="classes.dir" value="${build.dir}/classes"/>
 	<property name="jar.dir" value="${build.dir}/jar"/>
-	<property name="main-class" value="FSLabMain"/>
+	<property name="main-class" value="main.FSLabMain"/>
 	<property name="version" value="0.1"/>
 	
 	<path id="classpath">
@@ -20,17 +20,13 @@
 		<javac includeantruntime="false" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
 	</target>
 
-	<target name="jar" depends="compile">
+	<target name="jar" depends="clean, compile">
 		<mkdir dir="${jar.dir}"/>
 		<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
 			<manifest>
 				<attribute name="Main-Class" value="${main-class}"/>
 			</manifest>
 		</jar>
-	</target>
-	
-	<target name="buildall" depends="clean, jar">
-		<java jar="${jar.dir}/${ant.project.name}.jar" fork="true"/>
 	</target>
 	
 	<target name="run" depends="jar">
