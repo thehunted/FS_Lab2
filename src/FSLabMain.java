@@ -23,6 +23,7 @@ public class FSLabMain
 	{
 		
 		System.out.println( "Hello New World ");
+		System.out.println(" TEST ");
 
 	}
 
