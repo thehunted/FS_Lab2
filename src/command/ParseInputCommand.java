@@ -2,9 +2,13 @@ package command;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
+import filesystem.FileNode;
+
 public class ParseInputCommand 
 {
-
+	private FileNode rootNode;
+	private FileNode currentNode;
+	
 	//This is a list of supported user commands
 	private static final String SET_USER 	= "set";
 	private static final String CD 			= "cd";
@@ -25,15 +29,18 @@ public class ParseInputCommand
 	/**
 	 * This will initialize the user command line input method
 	 */
-	public void initCommandLine( )
+	public void initCommandLine( FileNode root )
 	{
 		String command = null, result = null;
 		Scanner console = new Scanner( System.in );
 		
+		rootNode = root;
+		currentNode = root;
+		
 		//This will wait on the user input forever unless the user types exit
 		do
 		{
-			System.out.print("folder/path> ");
+			System.out.print(currentNode.getName() + "> ");
 			command = console.nextLine();
 			result = parseCommand ( command );
 	
@@ -124,8 +131,16 @@ public class ParseInputCommand
 
 	private String runLMCommand( StringTokenizer token ) 
 	{
-
-		return null;
+		String listOfNodes = "\n";
+		
+		//Iterate through the list of files and print them out
+		for( int i = 0; i < currentNode.getChildren().size(); i++ )
+		{
+			listOfNodes += currentNode.getChildren().get(i).getName() + "\n";
+		}
+		
+		listOfNodes += "\n";
+		return listOfNodes;
 	}
 
 	private String runCMCommand( StringTokenizer token ) 
