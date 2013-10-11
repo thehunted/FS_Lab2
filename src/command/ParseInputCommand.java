@@ -8,6 +8,7 @@ public class ParseInputCommand
 {
 	private FileNode rootNode;
 	private FileNode currentNode;
+	private String user;
 	
 	//This is a list of supported user commands
 	private static final String SET_USER 	= "set";
@@ -24,6 +25,7 @@ public class ParseInputCommand
 	public ParseInputCommand( )
 	{
 		super();
+		user = "user1";
 	}
 	
 	/**
@@ -40,12 +42,12 @@ public class ParseInputCommand
 		//This will wait on the user input forever unless the user types exit
 		do
 		{
-			System.out.print(currentNode.getName() + "> ");
+			System.out.print( user + "@" + currentNode.getName() + "> ");
 			command = console.nextLine();
 			result = parseCommand ( command );
 	
-			System.out.print( result );
-			
+			if( result != null )
+				System.out.print( result );
 		}while( !command.equals( EXIT ) );
 		
 		console.close();
@@ -74,15 +76,15 @@ public class ParseInputCommand
 		if( command.equals( EXIT ) )
 			return result;
 		else if( command.equals( SET_USER ) )
-			result = runUserCommand( token );
+			runUserCommand( token );
 		else if( command.equals( CD ) )
-			result = runCDCommand( token );
+			runCDCommand( token );
 		else if( command.equals( PWD ) )
 			result = runPWDCommand( token );
 		else if( command.equals( READ ) )
 			result = runREADCommand( token );
 		else if( command.equals( WRITE ) )
-			result = runWRITECommand( token );
+			runWRITECommand( token );
 		else if( command.equals( CM ) )
 			result = runCMCommand( token );
 		else if( command.equals( LM ) )
@@ -110,7 +112,7 @@ public class ParseInputCommand
 		printCommands = 
 				"\nFile System Lab2 Command List \n" +
 				"--------------------------------------------------------------------\n" +
-				" set user <user>- changes the curren user to <user>\n" +
+				" set user <user>- changes the current user to <user>\n" +
 				" cd <dir> - changes the ccurrent working director to <dir>\n" +
 				" pwd - prints present working directory\n" +
 				" read <resource> - Reads the resource\n" +
@@ -131,57 +133,135 @@ public class ParseInputCommand
 
 	private String runLMCommand( StringTokenizer token ) 
 	{
-		String listOfNodes = "\n";
-		
-		//Iterate through the list of files and print them out
-		for( int i = 0; i < currentNode.getChildren().size(); i++ )
-		{
-			listOfNodes += currentNode.getChildren().get(i).getName() + "\n";
-		}
-		
-		listOfNodes += "\n";
-		return listOfNodes;
+
+		return null;
 	}
 
 	private String runCMCommand( StringTokenizer token ) 
 	{
 
+		
 		return null;
 	}
 
-	private String runWRITECommand( StringTokenizer token) 
+	private void runWRITECommand( StringTokenizer token) 
 	{
-
-
-		return null;
+		FileNode relativeNode;
+		String arg = null;
+		
+		if( token.hasMoreTokens() )
+		{
+			arg= token.nextToken();
+			relativeNode = resolvePath( arg );
+		}
+		else
+		{
+			relativeNode = currentNode;
+		}
+		
+		relativeNode.write( arg );
 	}
 
 	private String runREADCommand( StringTokenizer token ) 
 	{
-
-
-		return null;
+		FileNode relativeNode;
+		String arg = null;
+		
+		if( token.hasMoreTokens() )
+		{
+			arg= token.nextToken();
+			relativeNode = resolvePath( arg );
+		}
+		else
+		{
+			relativeNode = currentNode;
+		}
+		
+		return relativeNode.read( arg );
 	}
 
 	private String runPWDCommand( StringTokenizer token ) 
 	{
-
-
-		return null;
+		return resolvePathToRoot() + "\n";
 	}
 
-	private String runCDCommand( StringTokenizer token )
+	private void runCDCommand( StringTokenizer token )
 	{
-
-
-		return null;
+		String arg = token.nextToken();
+		
+		currentNode = resolvePath( arg );
 	}
 
-	private String runUserCommand( StringTokenizer token) 
+	private void runUserCommand( StringTokenizer token ) 
 	{
+		if(token.nextToken().equals( "user") )
+		{
+			user = token.nextToken();
+			currentNode = rootNode;
+		}
+	}
+	
+	private FileNode resolvePath( String arg )
+	{
+		StringTokenizer newPath = new StringTokenizer( arg, "/" );
+		FileNode tempNode;
 		
+		if( arg.startsWith("/") )
+			tempNode = rootNode;
+		else
+			tempNode = currentNode;
 		
-		return null;
+		if( newPath.countTokens() == 0 )
+		{
+			return rootNode;
+		}
+		
+		do
+		{
+			String path = newPath.nextToken();
+			
+			if( path.equals("..") )
+			{
+				if( tempNode.getParent() != null )
+				{
+						tempNode = tempNode.getParent();
+				}
+				else
+				{
+					System.out.println("Can't navigate above the root");
+					return currentNode;
+				}
+			}
+			else
+			{
+				if( tempNode.getChildren().get( path ) != null )
+				{
+					tempNode = tempNode.getChildren().get( path );
+				}
+				else
+				{
+					System.out.println("Cannot find path specified");
+					return currentNode;
+				}
+			}
+			
+		}while( newPath.hasMoreElements() );
+		
+		return tempNode;
+	}
+	
+	private String resolvePathToRoot()
+	{
+		FileNode temp = currentNode;
+		String pwd = temp.getName();
+		
+		while( temp.getParent() != null )
+		{
+			temp = temp.getParent();
+			pwd = temp.getName() + "/" + pwd;
+		}
+		
+		return "/" + pwd;
 	}
 
 }

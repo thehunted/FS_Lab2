@@ -2,10 +2,12 @@ package filesystem;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 public class FileNode 
 {
@@ -16,7 +18,7 @@ public class FileNode
 	private boolean viewAble;
 	private boolean file; //true is a file, false is a folder
 	private FileNode parent;
-	private ArrayList<FileNode> children;
+	private Hashtable<String, FileNode> children;
 	
 	public FileNode( )
 	{
@@ -26,7 +28,9 @@ public class FileNode
 		writeAccess = true;
 		viewAble = true;
 		parent = null;
-		setChildren(new ArrayList<FileNode>());
+		file = true;
+		
+		setChildren( new Hashtable<String, FileNode>() );
 	}
 
 
@@ -103,7 +107,7 @@ public class FileNode
 	/**
 	 * @return the children
 	 */
-	public ArrayList<FileNode> getChildren( ) 
+	public Hashtable<String, FileNode> getChildren( ) 
 	{
 		return children;
 	}
@@ -111,7 +115,7 @@ public class FileNode
 	/**
 	 * @param children the children to set
 	 */
-	public void setChildren( ArrayList<FileNode> children )
+	public void setChildren( Hashtable<String, FileNode> children )
 	{
 		this.children = children;
 	}
@@ -131,10 +135,9 @@ public class FileNode
 		return ( !file );
 	}
 	
-	public String read( )
+	public String read( String arg )
 	{
 		String fileOutput = "";
-		BufferedReader br = null;
 		
 		if( !readAccess )
 		{
@@ -142,29 +145,16 @@ public class FileNode
 		}
 		else
 		{
-			try 
-			{
-				String sCurrentLine;
-	 
-				br = new BufferedReader( new FileReader( path + name ) );
-	 
-				while ( ( sCurrentLine = br.readLine() ) != null ) 
-					fileOutput = sCurrentLine;
-				
-				br.close();
-	 
-			} 
-			catch (IOException e) 
-			{
-				System.out.println("Unable to open file " + path + "/" + name );
-				//e.printStackTrace();
-			}
+			if( isFolder() )
+				fileOutput = readFolder( );
+			else
+				fileOutput = readFile( );
 		}
 		
 		return fileOutput;
 	}
 	
-	public String write( String value)
+	public String write( String value )
 	{
 		String fileOutput = "";
 		BufferedWriter bw = null;
@@ -175,16 +165,28 @@ public class FileNode
 		}
 		else
 		{
-			try 
+			if( isFolder() )
 			{
-				bw = new BufferedWriter( new FileWriter( path + name ) );
-				bw.append( value );
-				bw.close();
-			} 
-			catch (IOException e) 
+				File folder = new File( getPath() + File.separator + getName() );
+				File newDir = new File( folder.getParent() + File.separator + value);
+		
+				if ( folder.renameTo( newDir ) );
+					setName( value );
+			}
+			else
 			{
-				System.out.println("Can't find file " + path + "/" + name );
-				//e.printStackTrace();
+				
+				try
+				{
+					bw = new BufferedWriter( new FileWriter( getPath() + File.separator + getName() ) );
+					bw.append( value );
+					bw.close();
+				} 
+				catch (IOException e) 
+				{
+					System.out.println("Can't find file " + path + "/" + name );
+					e.printStackTrace();
+				}
 			}
 		}
 		
@@ -196,9 +198,52 @@ public class FileNode
 		return ( parent == null );
 	}
 	
-	public boolean isAFolder( )
+	private String readFolder( )
 	{
-		return false;
+		String listOfNodes = "\n";
+		String listOfFiles = "", listOfFolders = "";
+		Enumeration<String> keys = getChildren().keys();
+
+		//Iterate through the list of files and print them out
+		while( keys.hasMoreElements() )
+		{
+			String key = (String) keys.nextElement();
+			FileNode childNode = getChildren().get( key );
+			
+			if( childNode.isFolder() )
+				listOfFolders += getChildren().get( key ).getName() + "\n";
+			else
+				listOfFiles += getChildren().get( key ).getName() + "\n";
+		}
+		
+		listOfNodes += listOfFolders + listOfFiles + "\n";
+		
+		return listOfNodes;
 	}
 	
+	private String readFile( )
+	{
+		String fileOutput = "";
+		BufferedReader br = null;
+		
+		try 
+		{
+			String sCurrentLine;
+ 
+			br = new BufferedReader( new FileReader( getPath() + File.separator + getName() ) );
+ 
+			while ( ( sCurrentLine = br.readLine() ) != null ) 
+				fileOutput = sCurrentLine + "\n";
+			
+			br.close();
+ 
+		} 
+		catch (IOException e) 
+		{
+			System.out.println("Unable to open file " + getPath() + File.separator + getName() );
+			e.printStackTrace();
+		}
+		
+		return fileOutput + "\n";
+	}
 }

@@ -24,6 +24,7 @@ public class FSLabMain
 		ParseFileSystem fsParser = new ParseFileSystem();
 		FileNode rootNode = null;
 		
+		//Banner for Program Start
 		System.out.println("\n-------------------------------" );
 		System.out.println("  _           _       ___   ");
 		System.out.println(" | |         | |     |__ \\ ");
@@ -31,8 +32,8 @@ public class FSLabMain
 		System.out.println(" | |    / _` | '_ \\    / / ");
 		System.out.println(" | |___| (_| | |_) |  / /_ ");
 		System.out.println(" |______\\__,_|_.__/  |____|\n");
-		System.out.println("File System Lab 2" );
-		System.out.println("Version 1.0" );
+		System.out.println(" File System Lab 2" );
+		System.out.println(" Version 1.0" );
 		System.out.println("-------------------------------\n\n" );
 		
 		//Here we'll need to parse the metafile
