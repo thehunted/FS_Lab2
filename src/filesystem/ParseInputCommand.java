@@ -1,8 +1,7 @@
-package command;
+package filesystem;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
-import filesystem.FileNode;
 
 public class ParseInputCommand 
 {
