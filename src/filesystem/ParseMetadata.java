@@ -101,6 +101,7 @@ public class ParseMetadata
 	{
 		Hashtable <String, AceRule> aceRules = new Hashtable <String, AceRule>();
 		MetaRule metarule = null;
+		String dirPermissions = "r", folderPermissions = "";
 		
 		while( token.hasMoreElements() )
 		{
@@ -128,6 +129,53 @@ public class ParseMetadata
 					userName = token.nextToken();
 					allowDeny = token.nextToken();
 					readWrite = token.nextToken();
+					
+					if( type.equals( DIR ) )
+					{
+						String dirPer;
+						
+						if( allowDeny.equals( "allow" ) )
+						{
+							dirPer = "r";
+							
+							if( readWrite.contains("r") )
+								dirPer += "r";
+							else if( readWrite.contains( "w" ) )
+								dirPer += "w";
+						}
+						else
+						{
+							dirPer = "";
+							
+							if( !readWrite.contains("r") )
+								dirPer += "r";
+							else if( !readWrite.contains( "w" ) )
+								dirPer += "w";
+						}
+						
+						readWrite = dirPer;
+					}
+					else
+					{
+						String dirPer;
+						
+						if( allowDeny.equals( "allow" ) )
+						{
+							dirPer = "";
+							
+							if( readWrite.contains("r") )
+								dirPer += "r";
+							else if( readWrite.contains( "w" ) )
+								dirPer += "w";
+						}
+						else
+						{
+							dirPer = "";
+						}
+						
+						readWrite = dirPer;
+					}
+					
 					
 					rule = new AceRule( userName, allowDeny, readWrite );
 					aceRules.put( rule.getName(), rule );
