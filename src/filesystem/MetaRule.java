@@ -8,6 +8,7 @@ public class MetaRule
 	private String owner;
 	private String fileNodeName;
 	private Hashtable<String, AceRule> aceRules;
+	private boolean folderOrFile;
 	
 	
 	public MetaRule( String owner, String fileNodeName, Hashtable<String, AceRule> aceRules ) 
@@ -24,7 +25,21 @@ public class MetaRule
 		return owner;
 	}
 
-
+	public void setfolderOrFile( boolean folderOrFile )
+	{
+		this.folderOrFile = folderOrFile;
+	}
+	
+	public boolean isFolder( )
+	{
+		return folderOrFile;
+	}
+	
+	public boolean isFile( )
+	{
+		return !folderOrFile;
+	}
+	
 	public void setOwner( String owner ) 
 	{
 		this.owner = owner;

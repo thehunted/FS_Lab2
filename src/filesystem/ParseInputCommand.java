@@ -193,7 +193,7 @@ public class ParseInputCommand
 			relativeNode = currentNode;
 		}
 		
-		if( metadata.hasAccess( relativeNode, WRITE, user) )
+		if( metadata.hasAccess( relativeNode, WRITE, user ) )
 		{
 			relativeNode.write( arg );
 		}
@@ -223,8 +223,8 @@ public class ParseInputCommand
 			relativeNode = currentNode;
 		}
 		
-		if( metadata.hasAccess( relativeNode, READ, user) )
-			return relativeNode.read( arg );
+		if( metadata.hasAccess( relativeNode, READ, user ) )
+			return relativeNode.read( arg, metadata, user );
 		else
 			return ("Access denied, cannot Read the Resource\n");
 	}

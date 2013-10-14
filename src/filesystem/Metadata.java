@@ -115,7 +115,7 @@ public class Metadata
 		//This means there is rule specified and the default applies
 		//Calling checkForAccess with null as the rule
 		if( rule == null )
-			return checkForAccess( null, accessType );
+			return checkForAccess( null, accessType, relativeNode.isFolder() );
 		
 		//policy rule part 3
 		//checks if user is the owner of the file
@@ -131,12 +131,12 @@ public class Metadata
 		//Check the ACE Rules for additional user level access
 		AceRule aceRule = rule.getACERule( user );
 				
-		return checkForAccess( aceRule, accessType );
+		return checkForAccess( aceRule, accessType, rule.isFolder() );
 	}
 	
-	private boolean checkForAccess( AceRule aceRule, String accessType )
+	private boolean checkForAccess( AceRule aceRule, String accessType, boolean folder )
 	{
-		//Policy Rule 4 allows users to "CD" into the file unless specified
+		/*//Policy Rule 4 allows users to "CD" into the file unless specified
 		//Policy Rule 5 doesn't allow users to R or W unless specified
 		if( aceRule != null )
 		{
@@ -159,7 +159,61 @@ public class Metadata
 				return false;
 			else 
 				return true;
+		}*/
+		
+		
+		if( folder )
+		{
+			if( aceRule != null )
+			{
+				if( accessType.equals( WRITE ) )
+					return aceRule.isWritable();
+				else if( accessType.equals( READ ) )
+					return aceRule.isReadable();
+				else //allowed
+					return true;
+			}
+			else
+			{
+				//If there is no rule specified for the ACE user then:
+				//Writable = false
+				//Readable = false
+				//Accessible = true
+				if( accessType.equals( WRITE ) )
+					return true;
+				else if( accessType.equals( READ ) )
+					return true;
+				else 
+					return true;
+			}
+			
 		}
+		else //file
+		{
+			if( aceRule != null )
+			{
+				if( accessType.equals( WRITE ) )
+					return aceRule.isWritable();
+				else if( accessType.equals( READ ) )
+					return aceRule.isReadable();
+				else //allowed
+					return true;
+			}
+			else
+			{
+				//If there is no rule specified for the ACE user then:
+				//Writable = false
+				//Readable = false
+				//Accessible = true
+				if( accessType.equals( WRITE ) )
+					return false;
+				else if( accessType.equals( READ ) )
+					return false;
+				else 
+					return true;
+			}
+		}
+		
 	}
 
 }

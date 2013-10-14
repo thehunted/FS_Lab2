@@ -72,7 +72,7 @@ public class ParseMetadata
 			}
 			else if( ruleType.equals( DIR ) || ruleType.equals( FILE ) )
 			{
-				rule = parseDirectoryFile( token );
+				rule = parseDirectoryFile( token, ruleType );
 			}
 			
 		}
@@ -97,10 +97,11 @@ public class ParseMetadata
 	 * File: foo1.txt Owner: user1 ACE: user1 deny rw ACE: user2 allow r
 	 * @param token
 	 */
-	private MetaRule parseDirectoryFile( StringTokenizer token )
+	private MetaRule parseDirectoryFile( StringTokenizer token, String type )
 	{
 		Hashtable <String, AceRule> aceRules = new Hashtable <String, AceRule>();
 		MetaRule metarule = null;
+		
 		while( token.hasMoreElements() )
 		{
 			String fileNodeName;
@@ -134,6 +135,12 @@ public class ParseMetadata
 			}
 
 			metarule = new MetaRule( owner, fileNodeName, aceRules );
+			
+			if( type.equals( DIR ) )
+				metarule.setfolderOrFile( true );
+			else
+				metarule.setfolderOrFile( false );
+			
 			metaData.addMetaRule( fileNodeName, metarule );
 		
 		}

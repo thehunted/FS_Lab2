@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -135,7 +136,7 @@ public class FileNode
 		return ( !file );
 	}
 	
-	public String read( String arg )
+	public String read( String arg, Metadata metadata, String user )
 	{
 		String fileOutput = "";
 		
@@ -146,7 +147,7 @@ public class FileNode
 		else
 		{
 			if( isFolder() )
-				fileOutput = readFolder( );
+				fileOutput = readFolder( metadata, user );
 			else
 				fileOutput = readFile( );
 		}
@@ -198,27 +199,67 @@ public class FileNode
 		return ( parent == null );
 	}
 	
-	private String readFolder( )
+	private String readFolder( Metadata metadata, String user )
 	{
 		String listOfNodes = "\n";
-		String listOfFiles = "", listOfFolders = "";
+		//ArrayList<String> listOfFiles = new ArrayList<String>(), listOfFolders = new ArrayList<String>();
 		Enumeration<String> keys = getChildren().keys();
 
 		//Iterate through the list of files and print them out
+		System.out.printf("\n%-20s %-5s %-10s %11s\n", "File/Folder Name", "Type", "Owner", user + " Access");
+		System.out.println("-----------------------------------------------------------");
 		while( keys.hasMoreElements() )
 		{
 			String key = (String) keys.nextElement();
 			FileNode childNode = getChildren().get( key );
+			String folderFile, owner, access = "";
+			MetaRule rule = metadata.getMetaRule( key );
 			
 			if( childNode.isFolder() )
-				listOfFolders += getChildren().get( key ).getName() + "\n";
+				folderFile = "Dir";
 			else
-				listOfFiles += getChildren().get( key ).getName() + "\n";
+				folderFile = "File";
+			
+			if( rule == null )
+			{
+				owner = "None";
+				
+				if( childNode.isFolder() )
+					access = "rw";
+				else
+					access = "--";
+				
+			}
+			else
+			{
+				owner = rule.getOwner();
+				AceRule aceRule = rule.getACERule( user );
+				
+				if( aceRule == null )
+				{
+					if( childNode.isFolder() )
+						access = "rw";
+					else
+						access = "--";
+				}
+				else
+				{
+					if( aceRule.isReadable() )
+						access += "r";
+					else
+						access += "-";
+					
+					if( aceRule.isWritable() )
+						access += "w";
+					else
+						access += "-";
+				}
+			}
+			
+			System.out.printf( "%-20s %-5s %-10s %6s\n", childNode.getName(), folderFile, owner, access );
 		}
 		
-		listOfNodes += listOfFolders + listOfFiles + "\n";
-		
-		return listOfNodes;
+		return "\n";
 	}
 	
 	private String readFile( )
