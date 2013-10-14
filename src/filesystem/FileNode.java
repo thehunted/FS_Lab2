@@ -237,7 +237,9 @@ public class FileNode
 				
 				if( aceRule == null )
 				{
-					if( childNode.isFolder() )
+					if( owner.equals( user ) )
+						access = "rw";
+					else if( childNode.isFolder() )
 						access = "rw";
 					else
 						access = "--";
@@ -266,6 +268,8 @@ public class FileNode
 	{
 		String fileOutput = "";
 		BufferedReader br = null;
+		System.out.println( "\nReading Contents of file " + getName() );
+		System.out.println( "-----------------------------------------------------------" );
 		
 		try 
 		{
@@ -285,6 +289,6 @@ public class FileNode
 			e.printStackTrace();
 		}
 		
-		return fileOutput + "\n";
+		return fileOutput + "<end file>\n\n";
 	}
 }

@@ -64,6 +64,7 @@ public class Metadata
 	{
 		String metaDataValues = " List of Meta Rules\n";
 		int i = 1;
+		String type;
 		
 		metaDataValues += "---------------------------------------------------------\n ";
 		metaDataValues += USERS + " ";
@@ -73,14 +74,20 @@ public class Metadata
 		while( keys.hasMoreElements() )
 			metaDataValues += users.get( keys.nextElement() ) + " ";
 		
-		metaDataValues += "\n ";
+		metaDataValues += "\n";
 		
 		//getting directory/file rules
 		Enumeration<String> names = metaHash.keys();
 		while( names.hasMoreElements() )
 		{
 			MetaRule rule = metaHash.get( names.nextElement() );
-			metaDataValues += i + ". " + rule.getName() + " " + OWNER + " " + rule.getOwner() + " ";
+			
+			if( rule.isFolder() )
+				type = DIR;
+			else
+				type = FILE;
+			
+			metaDataValues += " " + i + ". " + type + " " + rule.getName() + " " + OWNER + " " + rule.getOwner() + " ";
 			
 			Enumeration<String> aceKeys = rule.getAceRuleKeys();
 			while( aceKeys.hasMoreElements() )
@@ -101,7 +108,7 @@ public class Metadata
 					metaDataValues += "w";
 				metaDataValues += " ";
 			}
-			metaDataValues += "\n ";
+			metaDataValues += "\n";
 			i++;
 		}
 		

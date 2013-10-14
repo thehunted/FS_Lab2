@@ -30,6 +30,7 @@ public class AceRule
 			write = true;
 		else
 			write = false;
+			
 	}
 
 	public String getName( ) 

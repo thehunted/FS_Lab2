@@ -304,7 +304,7 @@ public class ParseInputCommand
 				}
 			}
 			
-			if( !metadata.hasAccess( tempNode, ACCESS, user ) )
+			if( !metadata.hasAccess( tempNode, READ, user ) )
 				return null;
 			
 		}while( newPath.hasMoreElements() );
