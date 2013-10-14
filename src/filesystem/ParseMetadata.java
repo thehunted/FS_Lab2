@@ -16,7 +16,7 @@ public class ParseMetadata
 	private final String OWNER = "Owner:";
 	private final String ACE = "ACE:";
 	private Metadata metaData;
-	
+
 	public ParseMetadata( )
 	{
 		super();
@@ -24,15 +24,21 @@ public class ParseMetadata
 		
 	}
 	
-	
-	public Metadata parseMetaFile( File metaFile )
+	public Metadata getMetaData() 
 	{
+		return metaData;
+	}	
+	
+	public Metadata parseMetaFile( String location )
+	{
+		File metaFile = null;
 		BufferedReader br = null;
 		
 		try 
 		{
 			String line;
- 
+			
+			metaFile = new File( location );
 			br = new BufferedReader( new FileReader( metaFile ) );
  
 			while ( ( line = br.readLine() ) != null ) 
@@ -51,9 +57,10 @@ public class ParseMetadata
 	}
 
 
-	private void parseMetaLine( String line ) 
+	public MetaRule parseMetaLine( String line ) 
 	{
 		StringTokenizer token = new StringTokenizer( line, " " );
+		MetaRule rule = null;
 		
 		if( token.countTokens() != 0)
 		{
@@ -65,11 +72,12 @@ public class ParseMetadata
 			}
 			else if( ruleType.equals( DIR ) || ruleType.equals( FILE ) )
 			{
-				parseDirectoryFile( token );
+				rule = parseDirectoryFile( token );
 			}
 			
 		}
 		
+		return rule;
 	}
 
 	private void parseUsers( StringTokenizer token )
@@ -89,9 +97,10 @@ public class ParseMetadata
 	 * File: foo1.txt Owner: user1 ACE: user1 deny rw ACE: user2 allow r
 	 * @param token
 	 */
-	private void parseDirectoryFile( StringTokenizer token )
+	private MetaRule parseDirectoryFile( StringTokenizer token )
 	{
 		Hashtable <String, AceRule> aceRules = new Hashtable <String, AceRule>();
+		MetaRule metarule = null;
 		while( token.hasMoreElements() )
 		{
 			String fileNodeName;
@@ -123,10 +132,13 @@ public class ParseMetadata
 					aceRules.put( rule.getName(), rule );
 				}
 			}
-			
-			metaData.addMetaRule( fileNodeName, new MetaRule( owner, fileNodeName, aceRules ));
+
+			metarule = new MetaRule( owner, fileNodeName, aceRules );
+			metaData.addMetaRule( fileNodeName, metarule );
+		
 		}
 		
+		return metarule;
 	}
 
 }

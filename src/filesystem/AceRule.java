@@ -32,7 +32,6 @@ public class AceRule
 			write = false;
 	}
 
-
 	public String getName( ) 
 	{
 		return name;

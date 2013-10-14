@@ -1,4 +1,5 @@
 package filesystem;
+import java.util.Enumeration;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
@@ -8,6 +9,7 @@ public class ParseInputCommand
 	private FileNode rootNode;
 	private FileNode currentNode;
 	private String user;
+	private Metadata metadata;
 	
 	//This is a list of supported user commands
 	private static final String SET_USER 	= "set";
@@ -21,6 +23,9 @@ public class ParseInputCommand
 	private static final String HELP 		= "help";
 	private static final String EXIT		= "exit";
 	
+	//Not a command but used to check access
+	private static final String ACCESS		= "access";
+	
 	public ParseInputCommand( )
 	{
 		super();
@@ -30,13 +35,14 @@ public class ParseInputCommand
 	/**
 	 * This will initialize the user command line input method
 	 */
-	public void initCommandLine( FileNode root )
+	public void initCommandLine( FileNode root, Metadata newMetadata )
 	{
 		String command = null, result = null;
 		Scanner console = new Scanner( System.in );
 		
 		rootNode = root;
 		currentNode = root;
+		metadata = newMetadata;
 		
 		//This will wait on the user input forever unless the user types exit
 		do
@@ -85,7 +91,7 @@ public class ParseInputCommand
 		else if( command.equals( WRITE ) )
 			runWRITECommand( token );
 		else if( command.equals( CM ) )
-			result = runCMCommand( token );
+			result = runCMCommand( input );
 		else if( command.equals( LM ) )
 			result = runLMCommand( token );
 		else if( command.equals( RM ) )
@@ -126,19 +132,41 @@ public class ParseInputCommand
 
 	private String runRMCommand( StringTokenizer token ) 
 	{
-
+		Enumeration<String> keys = metadata.getMetaRuleKeys();
+		String num = token.nextToken(), savedKey = null;
+		int i = 0;
+		
+		while( keys.hasMoreElements() && savedKey == null )
+		{
+			i++;
+			String tempKey = keys.nextElement();
+			
+			if( i == Integer.parseInt( num ))
+				savedKey = tempKey;
+		}
+		
+		if( savedKey !=  null )
+			metadata.removeMetaRule( savedKey );
+		
 		return null;
 	}
 
 	private String runLMCommand( StringTokenizer token ) 
 	{
-
-		return null;
+		return metadata.toString();
 	}
 
-	private String runCMCommand( StringTokenizer token ) 
+	private String runCMCommand( String line ) 
 	{
-
+		String metaLine = "";
+		ParseMetadata parser = new ParseMetadata();
+		MetaRule newRule = null;
+		
+		metaLine = line.replaceAll("cm ", "");
+		
+		newRule = parser.parseMetaLine( metaLine );
+		
+		metadata.addMetaRule(newRule.getName(), newRule);
 		
 		return null;
 	}
@@ -152,13 +180,27 @@ public class ParseInputCommand
 		{
 			arg= token.nextToken();
 			relativeNode = resolvePath( arg );
+			
+			if( relativeNode == null )
+			{
+				System.out.println("Open - Access denied, cannot Write to Resource");
+				return;
+			}
+			
 		}
 		else
 		{
 			relativeNode = currentNode;
 		}
 		
-		relativeNode.write( arg );
+		if( metadata.hasAccess( relativeNode, WRITE, user) )
+		{
+			relativeNode.write( arg );
+		}
+		else
+		{
+			System.out.println("Access denied, cannot Write to Resource");
+		}
 	}
 
 	private String runREADCommand( StringTokenizer token ) 
@@ -170,13 +212,21 @@ public class ParseInputCommand
 		{
 			arg= token.nextToken();
 			relativeNode = resolvePath( arg );
+			
+			if( relativeNode == null )
+			{
+				return ("Open - Access denied, cannot Read the Resource\n");
+			}
 		}
 		else
 		{
 			relativeNode = currentNode;
 		}
 		
-		return relativeNode.read( arg );
+		if( metadata.hasAccess( relativeNode, READ, user) )
+			return relativeNode.read( arg );
+		else
+			return ("Access denied, cannot Read the Resource\n");
 	}
 
 	private String runPWDCommand( StringTokenizer token ) 
@@ -187,15 +237,25 @@ public class ParseInputCommand
 	private void runCDCommand( StringTokenizer token )
 	{
 		String arg = token.nextToken();
+		FileNode tempNode = resolvePath( arg );
 		
-		currentNode = resolvePath( arg );
+		if( tempNode != null )
+			currentNode = tempNode;
+		else
+			System.out.println("Open - Access denied");
 	}
 
 	private void runUserCommand( StringTokenizer token ) 
 	{
 		if(token.nextToken().equals( "user") )
 		{
-			user = token.nextToken();
+			String newUser = token.nextToken();
+			
+			if( null != metadata.getUsersRule( newUser ) )
+			{
+				user = newUser;
+			}
+			
 			currentNode = rootNode;
 		}
 	}
@@ -243,6 +303,9 @@ public class ParseInputCommand
 					return currentNode;
 				}
 			}
+			
+			if( !metadata.hasAccess( tempNode, ACCESS, user ) )
+				return null;
 			
 		}while( newPath.hasMoreElements() );
 		

@@ -1,5 +1,6 @@
 package filesystem;
 
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 public class MetaRule 
@@ -38,7 +39,7 @@ public class MetaRule
 
 	public void setName( String name ) 
 	{
-		this.fileNodeName = fileNodeName;
+		this.fileNodeName = name;
 	}
 	
 	public void addACERule( String key, AceRule value)
@@ -49,6 +50,16 @@ public class MetaRule
 	public AceRule getACERule( String key )
 	{
 		return aceRules.get( key );
+	}
+	
+	public Enumeration<String> getAceRuleKeys( )
+	{
+		return aceRules.keys();
+	}
+	
+	public boolean isOwner( String owner )
+	{
+		return this.owner.equals( owner );
 	}
 	
 
