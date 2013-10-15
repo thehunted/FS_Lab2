@@ -101,7 +101,6 @@ public class ParseMetadata
 	{
 		Hashtable <String, AceRule> aceRules = new Hashtable <String, AceRule>();
 		MetaRule metarule = null;
-		String dirPermissions = "r", folderPermissions = "";
 		
 		while( token.hasMoreElements() )
 		{

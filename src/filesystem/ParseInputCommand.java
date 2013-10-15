@@ -43,6 +43,7 @@ public class ParseInputCommand
 		rootNode = root;
 		currentNode = root;
 		metadata = newMetadata;
+		user = metadata.getUserRuleKeys().nextElement();
 		
 		//This will wait on the user input forever unless the user types exit
 		do
@@ -173,13 +174,16 @@ public class ParseInputCommand
 
 	private void runWRITECommand( StringTokenizer token) 
 	{
-		FileNode relativeNode;
-		String arg = null;
+		FileNode relativeNode = null;
+		String oldName = null, newName = null;
 		
-		if( token.hasMoreTokens() )
+		System.out.println( token.countTokens() );
+		if( token.countTokens() == 2 )
 		{
-			arg= token.nextToken();
-			relativeNode = resolvePath( arg );
+			oldName = token.nextToken();
+			newName = token.nextToken();
+			
+			relativeNode = resolvePath( oldName );
 			
 			if( relativeNode == null )
 			{
@@ -190,12 +194,15 @@ public class ParseInputCommand
 		}
 		else
 		{
+			newName = token.nextToken();
 			relativeNode = currentNode;
 		}
 		
+		System.out.println( oldName + " " + newName + " " + relativeNode.getName() );
+		
 		if( metadata.hasAccess( relativeNode, WRITE, user ) )
 		{
-			relativeNode.write( arg );
+			relativeNode.write( newName );
 		}
 		else
 		{

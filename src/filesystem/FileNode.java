@@ -160,34 +160,32 @@ public class FileNode
 		String fileOutput = "";
 		BufferedWriter bw = null;
 		
-		if( !writeAccess )
+		System.out.println( value );
+		
+		if( isFolder() )
 		{
-			fileOutput = "User doesn't have read access";
+			System.out.println( getPath() + File.separator + getName() );
+			File folder = new File( getPath() + File.separator + getName() );
+			
+			System.out.println( folder.getParent() + File.separator + value );
+			File newDir = new File( folder.getParent() + File.separator + value);
+	
+			if ( folder.renameTo( newDir ) );
+				setName( value );
 		}
 		else
 		{
-			if( isFolder() )
+			
+			try
 			{
-				File folder = new File( getPath() + File.separator + getName() );
-				File newDir = new File( folder.getParent() + File.separator + value);
-		
-				if ( folder.renameTo( newDir ) );
-					setName( value );
-			}
-			else
+				bw = new BufferedWriter( new FileWriter( getPath() + File.separator + getName() ) );
+				bw.append( value );
+				bw.close();
+			} 
+			catch (IOException e) 
 			{
-				
-				try
-				{
-					bw = new BufferedWriter( new FileWriter( getPath() + File.separator + getName() ) );
-					bw.append( value );
-					bw.close();
-				} 
-				catch (IOException e) 
-				{
-					System.out.println("Can't find file " + path + "/" + name );
-					e.printStackTrace();
-				}
+				System.out.println("Can't find file " + path + "/" + name );
+				e.printStackTrace();
 			}
 		}
 		
